@@ -4,17 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
-<title>Menteri Keuangan Keluarga</title>
+<title>Dompet Santri</title>
 
 <!-- Pengaturan PWA & Standalone iOS Safari -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Menteri Keuangan Keluarga">
-<link rel="apple-touch-icon" href="https://fav.farm/💑">
+<meta name="apple-mobile-web-app-title" content="Dompet Santri">
+<link rel="apple-touch-icon" href="https://fav.farm/🕌">
 
 <script src="https://cdn.tailwindcss.com"></script>
-<!-- Chart.js CDN cadangan yang stabil -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
 tailwind.config = {
@@ -36,25 +34,18 @@ tailwind.config = {
 </head>
 <body class="text-slate-800 antialiased min-h-screen pb-24">
 
-<!-- LINK FOTO PROFIL -->
-<script>
-  const PROFILE_PHOTO_URL = "https://i.postimg.cc/m2Hj0J5k/foto-profil.jpg"; 
-</script>
-
 <header class="bg-gradient-to-r from-santri-900 via-santri-800 to-teal-900 text-white sticky top-0 z-40 shadow-lg">
   <div class="max-w-md mx-auto px-4 py-3.5 flex justify-between items-center">
     <div class="flex items-center space-x-3">
-      <div class="relative w-11 h-11 rounded-full border-2 border-santri-gold/80 overflow-hidden bg-emerald-800 flex-shrink-0 shadow-md">
-        <img id="header-avatar" src="" alt="Foto Profil" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-lg bg-santri-gold/20\'>💑</div>';">
-      </div>
+      <div class="w-10 h-10 rounded-xl bg-santri-gold/20 border border-santri-gold/40 flex items-center justify-center text-lg">🕌</div>
       <div>
-        <h1 class="font-bold text-base leading-tight text-amber-300">👑 Menteri Keuangan Keluarga</h1>
-        <p class="text-[11px] text-emerald-100/80">Kelola Anggaran &amp; Masa Depan Bersama</p>
+        <h1 class="font-bold text-base leading-tight text-amber-300">Dompet Santri</h1>
+        <p class="text-[11px] text-emerald-100/80">Catatan uang saku pribadi</p>
       </div>
     </div>
     <div class="flex gap-1.5">
-      <button onclick="requestAdminAccess('kelola')" class="text-xs bg-santri-gold/20 border border-santri-gold/40 text-amber-200 px-3 py-1.5 rounded-lg active:scale-95">🔒 Kelola</button>
-      <button onclick="requestAdminAccess('reset')" class="text-xs bg-emerald-950/50 border border-emerald-700/50 text-emerald-100 px-2.5 py-1.5 rounded-lg active:scale-95">🔄</button>
+      <button onclick="openKelola()" class="text-xs bg-santri-gold/20 border border-santri-gold/40 text-amber-200 px-3 py-1.5 rounded-lg active:scale-95">⚙️ Kelola</button>
+      <button onclick="confirmResetAll()" class="text-xs bg-emerald-950/50 border border-emerald-700/50 text-emerald-100 px-2.5 py-1.5 rounded-lg active:scale-95">🔄</button>
     </div>
   </div>
 </header>
@@ -63,11 +54,11 @@ tailwind.config = {
 
   <!-- Ringkasan Saldo -->
   <div class="bg-gradient-to-br from-santri-800 via-santri-900 to-slate-900 rounded-3xl p-5 text-white shadow-xl relative overflow-hidden border border-emerald-700/40">
-    <span class="text-[11px] text-emerald-200 uppercase tracking-wider font-semibold">Sisa Uang Kas Keluarga</span>
+    <span class="text-[11px] text-emerald-200 uppercase tracking-wider font-semibold">Sisa Uang Saku</span>
     <h2 id="display-sisa" class="text-3xl font-extrabold text-santri-gold tracking-tight mt-0.5 mb-3">Rp 0</h2>
     <div class="grid grid-cols-2 gap-2.5 pt-3 border-t border-emerald-700/50 text-xs">
       <div class="bg-emerald-950/40 rounded-xl p-2.5 border border-emerald-700/30">
-        <p class="text-[10px] text-emerald-200/80">Total Pemasukan</p>
+        <p class="text-[10px] text-emerald-200/80">Total Uang Saku</p>
         <p id="display-saku" class="font-bold text-emerald-100 text-sm mt-0.5">Rp 0</p>
       </div>
       <div class="bg-emerald-950/40 rounded-xl p-2.5 border border-emerald-700/30">
@@ -75,42 +66,13 @@ tailwind.config = {
         <p id="display-pengeluaran" class="font-bold text-rose-300 text-sm mt-0.5">Rp 0</p>
       </div>
     </div>
-  </div>
-
-  <!-- Target Tabungan, Dana Darurat & Investasi (Dengan Grafik Diagram) -->
-  <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-4">
-    <div class="flex justify-between items-center">
-      <div class="flex items-center gap-2">
-        <div class="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center text-sm">📈</div>
-        <h3 class="font-bold text-slate-800 text-sm">Target Investasi &amp; Darurat</h3>
+    <div class="mt-3.5 pt-3 border-t border-emerald-700/50">
+      <div class="flex justify-between items-center mb-1">
+        <span class="text-emerald-200 text-[11px]">🛡️ Dana Darurat</span>
+        <span id="display-darurat-text" class="font-semibold text-[11px] text-amber-200"></span>
       </div>
-      <span class="text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">Grafik Real-time</span>
-    </div>
-
-    <!-- Container Diagram Lingkaran -->
-    <div class="flex items-center justify-center relative py-2 min-h-[160px]">
-      <div class="w-44 h-44 relative">
-        <canvas id="targetChart"></canvas>
-      </div>
-    </div>
-
-    <!-- Detail Nominal Target -->
-    <div class="grid grid-cols-2 gap-2 text-xs">
-      <div class="bg-amber-50 rounded-xl p-2.5 border border-amber-200">
-        <div class="flex items-center gap-1.5 mb-1">
-          <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
-          <p class="text-[10px] font-bold text-amber-900">Dana Darurat</p>
-        </div>
-        <p id="display-darurat-val" class="font-extrabold text-slate-800 text-xs">Rp 0</p>
-        <p id="display-darurat-target" class="text-[10px] text-slate-500">Target: Rp 0</p>
-      </div>
-      <div class="bg-indigo-50 rounded-xl p-2.5 border border-indigo-200">
-        <div class="flex items-center gap-1.5 mb-1">
-          <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 inline-block"></span>
-          <p class="text-[10px] font-bold text-indigo-900">Investasi</p>
-        </div>
-        <p id="display-investasi-val" class="font-extrabold text-slate-800 text-xs">Rp 0</p>
-        <p id="display-investasi-target" class="text-[10px] text-slate-500">Target: Rp 0</p>
+      <div class="w-full bg-emerald-950/80 h-2 rounded-full overflow-hidden p-0.5 border border-emerald-700/30">
+        <div id="progress-darurat-bar" class="bg-gradient-to-r from-amber-400 to-santri-gold h-full rounded-full transition-all duration-500" style="width:0%"></div>
       </div>
     </div>
   </div>
@@ -137,6 +99,7 @@ tailwind.config = {
       </div>
       <span id="amplop-target" class="text-[11px] font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md"></span>
     </div>
+    <p id="amplop-desc" class="text-[11px] text-slate-500 mb-3"></p>
     <div class="grid grid-cols-4 gap-2 text-center" id="amplop-container"></div>
   </div>
 
@@ -149,7 +112,7 @@ tailwind.config = {
     <form onsubmit="tambahTransaksi(event)" class="space-y-3">
       <div class="grid grid-cols-2 gap-2">
         <button type="button" onclick="setType('pengeluaran')" id="btn-pengeluaran" class="py-2 px-3 rounded-xl text-xs font-bold transition-all">⬆ Pengeluaran</button>
-        <button type="button" onclick="setType('pemasukan')" id="btn-pemasukan" class="py-2 px-3 rounded-xl text-xs font-bold transition-all">⬇ Pemasukan / Gaji</button>
+        <button type="button" onclick="setType('pemasukan')" id="btn-pemasukan" class="py-2 px-3 rounded-xl text-xs font-bold transition-all">⬇ Pemasukan / Saku</button>
       </div>
       <div>
         <label class="lbl">Pilih Kategori</label>
@@ -167,18 +130,18 @@ tailwind.config = {
       </div>
       <div>
         <label class="lbl">Keterangan Catatan</label>
-        <input type="text" id="input-catatan" placeholder="Misal: Belanja bulanan / Tabungan darurat" required class="inp">
+        <input type="text" id="input-catatan" placeholder="Misal: Beli lauk matang ayam goreng" required class="inp">
       </div>
       <button type="submit" class="w-full bg-santri-800 hover:bg-santri-900 active:scale-[0.99] text-white font-bold py-2.5 rounded-xl text-xs shadow-md">➕ Simpan Catatan</button>
     </form>
   </div>
 
-  <!-- Riwayat Transaksi / Rincian Pengeluaran -->
+  <!-- Riwayat Transaksi -->
   <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
     <div class="flex justify-between items-center mb-3">
       <div class="flex items-center gap-2">
         <div class="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center text-sm">🧾</div>
-        <h3 class="font-bold text-slate-800 text-sm">Riwayat &amp; Rincian Catatan</h3>
+        <h3 class="font-bold text-slate-800 text-sm">Riwayat Catatan</h3>
       </div>
       <select id="filter-kategori" onchange="renderHistory()" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-medium focus:outline-none max-w-[45%]"></select>
     </div>
@@ -186,31 +149,38 @@ tailwind.config = {
   </div>
 </main>
 
-<!-- Modal PIN Admin Pusat -->
-<div id="modal-pin" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+<!-- Modals & Dialogs -->
+<div id="modal-info" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
   <div class="bg-white rounded-2xl max-w-xs w-full p-5 text-center shadow-2xl">
-    <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">🔑</div>
-    <h4 class="font-bold text-slate-800 text-base mb-1">Akses Admin Pusat</h4>
-    <p class="text-xs text-slate-500 mb-3">Masukkan PIN Admin untuk mengakses menu ini.</p>
-    <input type="password" inputmode="numeric" id="input-pin" class="inp text-center text-lg font-bold tracking-widest mb-3" placeholder="****" maxlength="6">
+    <div id="info-icon" class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">✅</div>
+    <h4 id="info-title" class="font-bold text-slate-800 text-base mb-1"></h4>
+    <p id="info-msg" class="text-xs text-slate-500 mb-4"></p>
+    <button onclick="closeModal('modal-info')" class="w-full bg-santri-800 text-white font-bold py-2 rounded-xl text-xs">Tutup</button>
+  </div>
+</div>
+
+<div id="modal-confirm" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] hidden items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-xs w-full p-5 text-center shadow-2xl">
+    <div class="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">⚠️</div>
+    <h4 id="confirm-title" class="font-bold text-slate-800 text-base mb-1"></h4>
+    <p id="confirm-msg" class="text-xs text-slate-500 mb-4"></p>
     <div class="grid grid-cols-2 gap-2">
-      <button onclick="closeModal('modal-pin')" class="bg-slate-100 text-slate-700 font-semibold py-2 rounded-xl text-xs">Batal</button>
-      <button onclick="verifyPin()" class="bg-santri-800 text-white font-bold py-2 rounded-xl text-xs">Verifikasi</button>
+      <button onclick="closeModal('modal-confirm')" class="bg-slate-100 text-slate-700 font-semibold py-2 rounded-xl text-xs">Batal</button>
+      <button id="confirm-ok" class="bg-rose-600 text-white font-semibold py-2 rounded-xl text-xs">Ya</button>
     </div>
   </div>
 </div>
 
-<!-- Modal Menu Cepat -->
 <div id="modal-quick" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-end sm:items-center justify-center p-4">
   <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl">
     <h4 id="quick-title" class="font-bold text-slate-800 text-base mb-3">Item Menu Cepat</h4>
     <div class="space-y-3">
       <div class="grid grid-cols-4 gap-2">
         <div><label class="lbl">Ikon</label><input id="q-emoji" maxlength="4" class="inp text-center" placeholder="🍚"></div>
-        <div class="col-span-3"><label class="lbl">Nama item</label><input id="q-nama" class="inp" placeholder="Misal: Belanja dapur"></div>
+        <div class="col-span-3"><label class="lbl">Nama item</label><input id="q-nama" class="inp" placeholder="Misal: Lauk ayam"></div>
       </div>
       <div class="grid grid-cols-2 gap-2">
-        <div><label class="lbl">Harga (Rp)</label><input id="q-harga" type="number" inputmode="numeric" min="1" class="inp" placeholder="50000"></div>
+        <div><label class="lbl">Harga (Rp)</label><input id="q-harga" type="number" inputmode="numeric" min="1" class="inp" placeholder="8000"></div>
         <div><label class="lbl">Kategori</label><select id="q-kategori" class="inp"></select></div>
       </div>
       <input type="hidden" id="q-id">
@@ -223,33 +193,31 @@ tailwind.config = {
   </div>
 </div>
 
-<!-- Modal Kelola Settings -->
 <div id="modal-kelola" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-end sm:items-center justify-center p-3">
   <div class="bg-white rounded-2xl max-w-md w-full max-h-[88vh] overflow-y-auto p-5 shadow-2xl">
     <div class="flex justify-between items-center mb-4">
-      <h4 class="font-bold text-slate-800 text-base">⚙️ Kelola Aplikasi (Admin)</h4>
+      <h4 class="font-bold text-slate-800 text-base">⚙️ Kelola Aplikasi</h4>
       <button onclick="closeModal('modal-kelola')" class="text-slate-400 text-lg px-2">✕</button>
     </div>
-    <h5 class="font-bold text-xs text-slate-700 mb-2">Angka Target &amp; Limit</h5>
-    <div class="grid grid-cols-3 gap-2 mb-2">
-      <div><label class="lbl">Amplop / Mg</label><input id="set-weekly" type="number" inputmode="numeric" min="0" class="inp"></div>
-      <div><label class="lbl">Target Darurat</label><input id="set-darurat" type="number" inputmode="numeric" min="0" class="inp"></div>
-      <div><label class="lbl">Target Investasi</label><input id="set-investasi" type="number" inputmode="numeric" min="0" class="inp"></div>
+    <h5 class="font-bold text-xs text-slate-700 mb-2">Angka Target</h5>
+    <div class="grid grid-cols-2 gap-2 mb-2">
+      <div><label class="lbl">Jatah amplop / minggu</label><input id="set-weekly" type="number" inputmode="numeric" min="0" class="inp"></div>
+      <div><label class="lbl">Target dana darurat</label><input id="set-darurat" type="number" inputmode="numeric" min="0" class="inp"></div>
     </div>
-    <button onclick="simpanSetting()" class="w-full bg-santri-800 text-white font-bold py-2 rounded-xl text-xs mb-5">Simpan Target</button>
+    <button onclick="simpanSetting()" class="w-full bg-santri-800 text-white font-bold py-2 rounded-xl text-xs mb-5">Simpan Angka</button>
     <h5 class="font-bold text-xs text-slate-700 mb-2">Kategori Kebutuhan</h5>
     <div id="kelola-cats" class="space-y-1.5 mb-4"></div>
     <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2.5">
       <p id="cat-form-title" class="font-bold text-xs text-slate-700">Tambah Kategori Baru</p>
       <div class="grid grid-cols-4 gap-2">
         <div><label class="lbl">Ikon</label><input id="c-emoji" maxlength="4" class="inp text-center" placeholder="📚"></div>
-        <div class="col-span-3"><label class="lbl">Nama kategori</label><input id="c-nama" class="inp" placeholder="Misal: Reksadana / Saham"></div>
+        <div class="col-span-3"><label class="lbl">Nama kategori</label><input id="c-nama" class="inp" placeholder="Misal: Buku &amp; Alat Tulis"></div>
       </div>
-      <label class="flex items-center gap-2 text-[11px] text-slate-600"><input type="checkbox" id="c-amplop"> Hitung ke amplop mingguan</label>
-      <label class="flex items-center gap-2 text-[11px] text-slate-600"><input type="checkbox" id="c-darurat"> Hitung sebagai Tabungan Dana Darurat</label>
-      <label class="flex items-center gap-2 text-[11px] text-slate-600"><input type="checkbox" id="c-investasi"> Hitung sebagai Tabungan Investasi</label>
+      <label class="flex items-center gap-2 text-[11px] text-slate-600"><input type="checkbox" id="c-amplop"> Hitung ke amplop mingguan (jajan/lauk)</label>
+      <label class="flex items-center gap-2 text-[11px] text-slate-600"><input type="checkbox" id="c-darurat"> Hitung sebagai tabungan dana darurat</label>
       <input type="hidden" id="c-id">
       <div class="flex gap-2">
+        <button id="c-batal" onclick="resetCatForm()" class="hidden flex-1 bg-slate-200 text-slate-700 font-semibold py-2 rounded-xl text-xs">Batal Ubah</button>
         <button onclick="simpanCat()" class="flex-1 bg-santri-800 text-white font-bold py-2 rounded-xl text-xs">Simpan Kategori</button>
       </div>
     </div>
@@ -258,14 +226,6 @@ tailwind.config = {
 
 <script>
 const KEY = 'santri_tracker_v2';
-const ADMIN_PIN = '16';
-let pendingAction = null;
-let chartInstance = null;
-
-if (typeof PROFILE_PHOTO_URL !== 'undefined' && PROFILE_PHOTO_URL) {
-  document.getElementById('header-avatar').src = PROFILE_PHOTO_URL;
-}
-
 function today() {
   const d = new Date(), p = n => String(n).padStart(2, '0');
   return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
@@ -278,30 +238,26 @@ const $ = id => document.getElementById(id);
 
 function defaultCats() {
   return [
-    { id: 'lauk', name: 'Kebutuhan Dapur', emoji: '🛒', amplop: true, darurat: false, investasi: false },
-    { id: 'jajan', name: 'Jajan / Hiburan', emoji: '☕', amplop: true, darurat: false, investasi: false },
-    { id: 'kuota', name: 'Listrik & WiFi', emoji: '⚡', amplop: false, darurat: false, investasi: false },
-    { id: 'darurat', name: 'Dana Darurat', emoji: '🛡', amplop: false, darurat: true, investasi: false },
-    { id: 'investasi', name: 'Investasi Masa Depan', emoji: '📈', amplop: false, darurat: false, investasi: true },
-    { id: 'lainnya', name: 'Lain-lain', emoji: '📦', amplop: false, darurat: false, investasi: false }
+    { id: 'lauk', name: 'Tambahan Lauk / Makan', emoji: '🍽️', amplop: true, darurat: false },
+    { id: 'jajan', name: 'Jajan Kantin / Snack', emoji: '🍪', amplop: true, darurat: false },
+    { id: 'kuota', name: 'Kuota Internet', emoji: '📶', amplop: false, darurat: false },
+    { id: 'mandi', name: 'Perlengkapan Mandi/Cuci', emoji: '🧼', amplop: false, darurat: false },
+    { id: 'tabungan', name: 'Dana Darurat / Tabungan', emoji: '🐖', amplop: false, darurat: true },
+    { id: 'lainnya', name: 'Lain-lain', emoji: '📦', amplop: false, darurat: false }
   ];
 }
 function defaultQuick() {
   return [
-    { id: 'q1', name: 'Belanja Sayur', emoji: '🥬', price: 25000, kategori: 'lauk' },
-    { id: 'q2', name: 'Kopi / Snack', emoji: '☕', price: 15000, kategori: 'jajan' },
-    { id: 'q3', name: 'Galon Air', emoji: '🚰', price: 20000, kategori: 'lauk' }
+    { id: 'q1', name: 'Lauk matang', emoji: '🍗', price: 8000, kategori: 'lauk' },
+    { id: 'q2', name: 'Gorengan', emoji: '🍤', price: 2000, kategori: 'jajan' },
+    { id: 'q3', name: 'Es teh', emoji: '🧋', price: 3000, kategori: 'jajan' }
   ];
 }
-function freshState() { return { cats: defaultCats(), quick: defaultQuick(), tx: [], weekly: 500000, goal: 5000000, goalInvestasi: 10000000 }; }
+function freshState() { return { cats: defaultCats(), quick: defaultQuick(), tx: [], weekly: 80000, goal: 300000 }; }
 function load() {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) {
-      const data = JSON.parse(raw);
-      if (!data.goalInvestasi) data.goalInvestasi = 10000000;
-      return data;
-    }
+    if (raw) return JSON.parse(raw);
   } catch (e) {}
   return freshState();
 }
@@ -313,32 +269,11 @@ let aturMode = false;
 
 const catOf = id => S.cats.find(c => c.id === id) || { id: 'lainnya', name: 'Lain-lain', emoji: '📦' };
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('load', () => {
   $('input-tanggal').value = today();
   setType('pengeluaran');
   renderAll();
 });
-
-function requestAdminAccess(action) {
-  pendingAction = action;
-  $('input-pin').value = '';
-  openModal('modal-pin');
-}
-
-function verifyPin() {
-  const inputPin = $('input-pin').value;
-  if (inputPin === ADMIN_PIN) {
-    closeModal('modal-pin');
-    if (pendingAction === 'kelola') {
-      openKelola();
-    } else if (pendingAction === 'reset') {
-      confirmResetAll();
-    }
-  } else {
-    alert('PIN Admin Salah!');
-    $('input-pin').value = '';
-  }
-}
 
 function renderAll() {
   save();
@@ -350,79 +285,18 @@ function renderAll() {
 }
 
 function renderTotals() {
-  let saku = 0, keluar = 0, darurat = 0, investasi = 0;
+  let saku = 0, keluar = 0, darurat = 0;
   S.tx.forEach(t => {
-    if (t.type === 'pemasukan') {
-      saku += t.nominal;
-      if (catOf(t.kategori).darurat) darurat += t.nominal;
-      if (catOf(t.kategori).investasi) investasi += t.nominal;
-    } else {
+    if (t.type === 'pemasukan') saku += t.nominal;
+    else {
       keluar += t.nominal;
       if (catOf(t.kategori).darurat) darurat += t.nominal;
-      if (catOf(t.kategori).investasi) investasi += t.nominal;
     }
   });
-
-  $('display-sisa').textContent = fmt(saku - keluar);
-  $('display-saku').textContent = fmt(saku);$('display-pengeluaran').textContent = fmt(keluar);
-
-  $('display-darurat-val').textContent = fmt(darurat);$('display-darurat-target').textContent = 'Target: ' + fmt(S.goal);
-
-  $('display-investasi-val').textContent = fmt(investasi);$('display-investasi-target').textContent = 'Target: ' + fmt(S.goalInvestasi);
-
-  renderChart(darurat, investasi);
-}
-
-function renderChart(darurat, investasi) {
-  if (typeof Chart === 'undefined') return; // Mencegah error jika Chart.js gagal muat
-  
-  const canvas = document.getElementById('targetChart');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  
-  const remainingDarurat = Math.max(0, S.goal - darurat);
-  const remainingInvestasi = Math.max(0, S.goalInvestasi - investasi);
-
-  if (chartInstance) {
-    chartInstance.destroy();
-  }
-
-  try {
-    chartInstance = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Dana Darurat Terkumpul', 'Investasi Terkumpul', 'Sisa Target Darurat', 'Sisa Target Investasi'],
-        datasets: [{
-          data: [
-            darurat, 
-            investasi, 
-            darurat === 0 && investasi === 0 ? S.goal : remainingDarurat, 
-            darurat === 0 && investasi === 0 ? S.goalInvestasi : remainingInvestasi
-          ],
-          backgroundColor: ['#f59e0b', '#4f46e5', '#fef3c7', '#e0e7ff'],
-          borderWidth: 2,
-          borderColor: '#ffffff'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                return context.label + ': ' + fmt(context.raw);
-              }
-            }
-          }
-        },
-        cutout: '68%'
-      }
-    });
-  } catch (err) {
-    console.log("Chart load error:", err);
-  }
+  $('display-sisa').textContent = fmt(saku - keluar);$('display-saku').textContent = fmt(saku);
+  $('display-pengeluaran').textContent = fmt(keluar);$('display-darurat-text').textContent = fmt(darurat) + ' / ' + fmt(S.goal);
+  const pct = S.goal > 0 ? Math.min(100, Math.round(darurat / S.goal * 100)) : 0;
+  $('progress-darurat-bar').style.width = pct + '%';
 }
 
 function renderQuick() {
@@ -549,7 +423,6 @@ function hapusQuick() {
 function openKelola() {
   $('set-weekly').value = S.weekly;
   $('set-darurat').value = S.goal;
-  $('set-investasi').value = S.goalInvestasi || 10000000;
   renderKelola();
   openModal('modal-kelola');
 }
@@ -557,13 +430,13 @@ function renderKelola() {
   $('kelola-cats').innerHTML = S.cats.map(c => `
     <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 text-xs">
       <span>${esc(c.emoji)} ${esc(c.name)}</span>
-      ${c.id !== 'lainnya' ? `<button onclick="hapusCat('${esc(c.id)}')" class="p-1">🗑</button>` : ''}
+      ${c.id !== 'lainnya' ? `<button onclick="hapusCat('${esc(c.id)}')" class="p-1">🗑️</button>` : ''}
     </div>`).join('');
 }
 function simpanCat() {
   const name = $('c-nama').value.trim();
   if (!name) return;
-  S.cats.push({ id: uid('c'), name, emoji: $('c-emoji').value.trim() \vert{}\vert{} '📦', amplop: $('c-amplop').checked, darurat: $('c-darurat').checked, investasi:$('c-investasi').checked });
+  S.cats.push({ id: uid('c'), name, emoji: $('c-emoji').value.trim() || '📦', amplop: $('c-amplop').checked, darurat:$('c-darurat').checked });
   $('c-nama').value = '';$('c-emoji').value = '';
   renderKelola(); renderAll();
 }
@@ -574,7 +447,6 @@ function hapusCat(id) {
 function simpanSetting() {
   S.weekly = parseInt($('set-weekly').value, 10) || 0;
   S.goal = parseInt($('set-darurat').value, 10) || 0;
-  S.goalInvestasi = parseInt($('set-investasi').value, 10) || 0;
   renderAll();
   closeModal('modal-kelola');
 }
