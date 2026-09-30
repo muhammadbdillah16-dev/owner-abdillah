@@ -13,7 +13,8 @@
 <link rel="apple-touch-icon" href="https://fav.farm/💑">
 
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Chart.js CDN cadangan yang stabil -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
 tailwind.config = {
@@ -37,18 +38,17 @@ tailwind.config = {
 
 <!-- LINK FOTO PROFIL -->
 <script>
-  const PROFILE_PHOTO_URL = "https://i.postimg.cc/m2Hj0J5k/foto-profil.jpg"; // Ganti dengan link foto kalian jika ada
+  const PROFILE_PHOTO_URL = "https://i.postimg.cc/m2Hj0J5k/foto-profil.jpg"; 
 </script>
 
 <header class="bg-gradient-to-r from-santri-900 via-santri-800 to-teal-900 text-white sticky top-0 z-40 shadow-lg">
   <div class="max-w-md mx-auto px-4 py-3.5 flex justify-between items-center">
     <div class="flex items-center space-x-3">
-      <!-- Foto Profil Header -->
       <div class="relative w-11 h-11 rounded-full border-2 border-santri-gold/80 overflow-hidden bg-emerald-800 flex-shrink-0 shadow-md">
         <img id="header-avatar" src="" alt="Foto Profil" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-lg bg-santri-gold/20\'>💑</div>';">
       </div>
       <div>
-        <h1 class="font-bold text-base leading-tight text-amber-300">Menteri Keuangan Keluarga</h1>
+        <h1 class="font-bold text-base leading-tight text-amber-300">👑 Menteri Keuangan Keluarga</h1>
         <p class="text-[11px] text-emerald-100/80">Kelola Anggaran &amp; Masa Depan Bersama</p>
       </div>
     </div>
@@ -88,8 +88,8 @@ tailwind.config = {
     </div>
 
     <!-- Container Diagram Lingkaran -->
-    <div class="flex items-center justify-center relative py-2">
-      <div class="w-48 h-48 relative">
+    <div class="flex items-center justify-center relative py-2 min-h-[160px]">
+      <div class="w-44 h-44 relative">
         <canvas id="targetChart"></canvas>
       </div>
     </div>
@@ -313,7 +313,7 @@ let aturMode = false;
 
 const catOf = id => S.cats.find(c => c.id === id) || { id: 'lainnya', name: 'Lain-lain', emoji: '📦' };
 
-window.addEventListener('load', () => {
+window.addEventListener('DOMContentLoaded', () => {
   $('input-tanggal').value = today();
   setType('pengeluaran');
   renderAll();
@@ -374,7 +374,11 @@ function renderTotals() {
 }
 
 function renderChart(darurat, investasi) {
-  const ctx = document.getElementById('targetChart').getContext('2d');
+  if (typeof Chart === 'undefined') return; // Mencegah error jika Chart.js gagal muat
+  
+  const canvas = document.getElementById('targetChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
   
   const remainingDarurat = Math.max(0, S.goal - darurat);
   const remainingInvestasi = Math.max(0, S.goalInvestasi - investasi);
@@ -383,38 +387,42 @@ function renderChart(darurat, investasi) {
     chartInstance.destroy();
   }
 
-  chartInstance = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Dana Darurat Terkumpul', 'Investasi Terkumpul', 'Sisa Target Darurat', 'Sisa Target Investasi'],
-      datasets: [{
-        data: [
-          darurat, 
-          investasi, 
-          darurat === 0 && investasi === 0 ? S.goal : remainingDarurat, 
-          darurat === 0 && investasi === 0 ? S.goalInvestasi : remainingInvestasi
-        ],
-        backgroundColor: ['#f59e0b', '#4f46e5', '#fef3c7', '#e0e7ff'],
-        borderWidth: 2,
-        borderColor: '#ffffff'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              return context.label + ': ' + fmt(context.raw);
+  try {
+    chartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Dana Darurat Terkumpul', 'Investasi Terkumpul', 'Sisa Target Darurat', 'Sisa Target Investasi'],
+        datasets: [{
+          data: [
+            darurat, 
+            investasi, 
+            darurat === 0 && investasi === 0 ? S.goal : remainingDarurat, 
+            darurat === 0 && investasi === 0 ? S.goalInvestasi : remainingInvestasi
+          ],
+          backgroundColor: ['#f59e0b', '#4f46e5', '#fef3c7', '#e0e7ff'],
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.label + ': ' + fmt(context.raw);
+              }
             }
           }
-        }
-      },
-      cutout: '68%'
-    }
-  });
+        },
+        cutout: '68%'
+      }
+    });
+  } catch (err) {
+    console.log("Chart load error:", err);
+  }
 }
 
 function renderQuick() {
@@ -549,7 +557,7 @@ function renderKelola() {
   $('kelola-cats').innerHTML = S.cats.map(c => `
     <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 text-xs">
       <span>${esc(c.emoji)} ${esc(c.name)}</span>
-      ${c.id !== 'lainnya' ? `<button onclick="hapusCat('${esc(c.id)}')" class="p-1">🗑️</button>` : ''}
+      ${c.id !== 'lainnya' ? `<button onclick="hapusCat('${esc(c.id)}')" class="p-1">🗑</button>` : ''}
     </div>`).join('');
 }
 function simpanCat() {
